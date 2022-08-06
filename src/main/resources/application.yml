@@ -1,0 +1,81 @@
+app:
+  cache-cron: 0 0 */6 * * *
+  dbUsername: root
+  dbUrl: localhost:3306
+  dbName: notification1
+  dbPassword:
+  fixedRateCron: 3000000  #this needs to be 30000 in production
+  initialDelayCron: 2000000 #this needs to be 20000 in production
+  encryptionKey: ThisIsSpartaThisIsSparta
+  profile: loc
+
+
+
+
+server:
+  port: 8091
+  application:
+    name: notification
+  profiles:
+    active: ${app.profile}
+logging:
+  level:
+    com:
+      flutterwave:
+        middleware:
+          notification: debug
+    org:
+      springframework:
+        cache: TRACE
+    reactor:
+      netty:
+        http:
+          client: DEBUG
+
+
+spring:
+  mvc:
+    async:
+      request-timeout: -1
+  output:
+    ansi:
+      enabled: ALWAYS
+  cache:
+    type: redis
+  redis:
+    host: localhost
+    port: 6379
+    password:
+  hibernate:
+    ddl-auto: none
+  jpa:
+    generate-ddl: true
+  r2dbc:
+    url: r2dbc:pool:mysql://${app.dbUrl}/${app.dbName}?allowMultiQueries=true
+    username: ${app.dbUsername}
+    password: ${app.dbPassword}
+  flyway:
+    url: jdbc:mysql://${app.dbUrl}/${app.dbName}?allowMultiQueries=true
+    user: ${app.dbUsername}
+    password: ${app.dbPassword}
+    baseline-on-migrate: true
+    check-location: false
+    locations: classpath:db\migration
+
+
+hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+    title: Agency Banking API
+    description: API documentation for Agency Banking
+    version: 1.0.0
+    version-status: stable
+    version-description: Initial version
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+
+

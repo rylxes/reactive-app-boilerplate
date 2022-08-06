@@ -1,0 +1,26 @@
+app:
+    cache-cron: 0 0 */6 * * *
+    dbName: notification1
+    dbPassword:
+    dbUrl: localhost:3306
+    dbUsername: root
+    fixedRateCron: 300000
+    initialDelayCron: 60000
+    encryptionKey: ThisIsSpartaThisIsSparta
+server:
+    port: 8091
+spring:
+    mvc:
+        pathmatch:
+            matching-strategy: ant_path_matcher
+    r2dbc:
+        password: ${app.dbPassword}
+        url: r2dbc:pool:mysql://${app.dbUrl}/${app.dbName}?allowMultiQueries=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+        username: ${app.dbUsername}
+    flyway:
+        url: jdbc:mysql://${app.dbUrl}/${app.dbName}?allowMultiQueries=true
+        user: ${app.dbUsername}
+        password: ${app.dbPassword}
+        baseline-on-migrate: true
+        locations: classpath:db\migration
+        fail-on-missing-locations: false

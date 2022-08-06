@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <property name="DEV_HOME" value="logs"/>
+    <property name="LOG_PATTERN" value="%-7p %d [%t] %c [%X{client-id} - %X{currentUser}] - %m%n"/>
+    <property name="LOG_PATTERN_CONSOLE"
+              value="%highlight([%level]) %d [%t] %c [%X{client-id} - %X{currentUser}] - %m%n"/>
+
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springframework.boot" level="INFO"/>
+    <logger name="org.hibernate" level="INFO"/>
+    <logger name="org.quartz" level="INFO"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+        <encoder>
+            <charset>UTF-8</charset>
+            <!--<pattern>
+              %boldCyan(%d{yyyy-MM-dd HH:mm:ss.SSS}) %highlight(%-5level) %green([%-40.40logger{35}])-:%line -  %msg%n
+            </pattern>-->
+            <pattern>
+                %boldCyan(%d{yyyy-MM-dd HH:mm:ss.SSS}) [%thread] %-5level  %class{36}.%M-:%L  - %msg%n
+            </pattern>
+
+        </encoder>
+    </appender>
+
+    <appender name="FILE-AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${DEV_HOME}/notification-service.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>${DEV_HOME}/archived/notification-service.%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+    <appender class="ch.qos.logback.ext.loggly.LogglyBatchAppender" name="loggly">
+        <endpointUrl>
+            https://logs-01.loggly.com/inputs/e9048da1-696e-45d8-8284-43bc07fd86ca/tag/logback
+        </endpointUrl>
+        <flushIntervalInSeconds>2</flushIntervalInSeconds>
+        <pattern>%d{"ISO8601", UTC} %p %t %c %M - %m%n</pattern>
+    </appender>
+
+    <springProfile name="!loc">
+        <logger name="com.flutterwave.middleware.notification" level="info"
+                additivity="false">
+            <appender-ref ref="FILE-AUDIT"/>
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="loggly" />
+        </logger>
+        <!-- this config is for logback framework -->
+        <logger name="com.zaxxer.hikari" level="debug" additivity="false">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="FILE-AUDIT"/>
+            <appender-ref ref="loggly" />
+        </logger>
+
+        <root level="info">
+            <appender-ref ref="FILE-AUDIT"/>
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="loggly" />
+        </root>
+    </springProfile>
+
+    <springProfile name="loc">
+        <logger name="com.flutterwave.middleware.notification" level="info"
+                additivity="false">
+            <appender-ref ref="FILE-AUDIT"/>
+            <appender-ref ref="STDOUT" />
+        </logger>
+        <!-- this config is for logback framework -->
+        <logger name="com.zaxxer.hikari" level="debug" additivity="false">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="FILE-AUDIT"/>
+        </logger>
+
+        <root level="info">
+            <appender-ref ref="FILE-AUDIT"/>
+            <appender-ref ref="STDOUT" />
+        </root>
+    </springProfile>
+
+
+
+
+</configuration>
